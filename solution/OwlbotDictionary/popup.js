@@ -32,5 +32,6 @@ function getDefinition(url, callback) {
 };
 
 function callback(response) {
+	document.getElementById("loaderContainer").hidden = true;
 	document.getElementById("output").innerHTML = response;
 }
