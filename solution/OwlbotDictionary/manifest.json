@@ -1,0 +1,13 @@
+{
+	"manifest_version": 2,
+	"name": "Owlbot Dictionary",
+	"description": "Word definitions by Owlbot Dictionary",
+	"version": "0.0.1",
+	"icons": {"128": "owl_128.png"},
+	"browser_action": {
+	  "default_icon": "owl.png",
+		"default_popup": "popup.html",
+		"default_title": "Get Owlbot definition for selected word."
+	},
+	"permissions": ["activeTab", "https://owlbot.info/api/v2/dictionary/*"]
+}
