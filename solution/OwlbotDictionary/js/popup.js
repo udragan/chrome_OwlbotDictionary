@@ -1,7 +1,14 @@
 chrome.tabs.executeScript( {
     code: "window.getSelection().toString();"
 }, function(selection) {
-	//TODO: check if there is actual selection
+	console.log("current selection:" + selection);
+
+	if (selection == '') {
+		var message = "Please select a word on the page.";
+		callback(message);
+
+		return;
+	 }
 	//TODO: check if there are multiple words selected
 	//TODO: put all letters in selection to lower (owlbot doesn`t return anything if there are upper letters!)
 	var url = "https://owlbot.info/api/v2/dictionary/" + selection[0].trim() + "?format=json";
