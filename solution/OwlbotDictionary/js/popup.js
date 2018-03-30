@@ -9,9 +9,19 @@ chrome.tabs.executeScript( {
 
 		return;
 	 }
-	//TODO: check if there are multiple words selected
+	 
+	 var selectionChunks = selection[0].trim().split(/[\s,;:/\\]+/);
+
+	 selectionChunks.forEach(element => {
+		console.log(element);
+	 });
+
+	if (selectionChunks.length > 1) {
+		console.log("Multiple words selected, getting explanation for the first word only.");
+	}
+
 	//TODO: put all letters in selection to lower (owlbot doesn`t return anything if there are upper letters!)
-	var url = "https://owlbot.info/api/v2/dictionary/" + selection[0].trim() + "?format=json";
+	var url = "https://owlbot.info/api/v2/dictionary/" + selectionChunks[0] + "?format=json";
     getDefinition(url, callback);
 });
 
