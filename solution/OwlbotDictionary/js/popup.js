@@ -4,24 +4,24 @@ chrome.tabs.executeScript( {
 	console.log("current selection:" + selection);
 
 	if (selection == '') {
-		var message = "Please select a word on the page.";
-		callback(message);
+		callback(selection);
 
 		return;
 	 }
 	 
-	 var selectionChunks = selection[0].trim().split(/[\s,;:/\\]+/);
-
-	 selectionChunks.forEach(element => {
-		console.log(element);
-	 });
+	 var selectionChunks = selection[0].trim().split(/[\s,;:/\\]+/);	 
 
 	if (selectionChunks.length > 1) {
+		selectionChunks.forEach(element => {
+			console.log(element);
+		 });
+
 		console.log("Multiple words selected, getting explanation for the first word only.");
 	}
 
-	//TODO: put all letters in selection to lower (owlbot doesn`t return anything if there are upper letters!)
-	var url = "https://owlbot.info/api/v2/dictionary/" + selectionChunks[0] + "?format=json";
+	//put all letters to lower case (owlbot doesn`t return anything if there are upper case letters!)
+	var queryString = selectionChunks[0].toLowerCase();
+	var url = "https://owlbot.info/api/v2/dictionary/" + queryString + "?format=json";
     getDefinition(url, callback);
 });
 
@@ -29,8 +29,6 @@ chrome.tabs.executeScript( {
 // functions
 
 function getDefinition(url, callback) {
-
-	// Feature detection
 	if (!window.XMLHttpRequest) {
 		return;
 	}
@@ -50,5 +48,66 @@ function getDefinition(url, callback) {
 
 function callback(response) {
 	document.getElementById("loaderContainer").hidden = true;
-	document.getElementById("output").innerHTML = response;
+	
+	if (!isValid(response)) {
+		return;
+	}
+
+	var responseObj = JSON.parse(response);
+	console.log(responseObj);
+
+	responseObj.forEach(element => {
+		var divTag = document.createElement("div");
+
+		for (var key in element) {
+			console.log(key);			
+			console.log(element[key]);
+
+			if (element[key] != null) {
+				divTag.appendChild(generateElement(key, element[key]));
+			}
+		}
+
+		divTag.appendChild(document.createElement("br"));
+		document.body.appendChild(divTag);		
+	});
+}
+
+function isValid(response) {
+	var validResponse = true;
+	var message = null;
+
+	if (response == '') {
+		validResponse = false;
+		message = "Please select a word on the page.";
+	}
+
+	if (response == "[]") {
+		validResponse = false;
+		message = "No definition available.";
+	}
+
+	if (!validResponse) {
+		console.log(message);		
+		document.getElementById("output").innerHTML = message;
+	}
+
+	return validResponse;
+}
+
+function generateElement(key, value) {
+	var rootDiv = document.createElement("div");
+
+	var keyTag = document.createElement("h3");
+	keyTag.setAttribute("style", "display: inline");
+	keyTag.innerText = key + ": ";
+
+	var valueTag = document.createElement("p");
+	valueTag.setAttribute("style", "display: inline");
+	valueTag.innerText = value;
+
+	rootDiv.appendChild(keyTag);
+	rootDiv.appendChild(valueTag);
+
+	return rootDiv;
 }
