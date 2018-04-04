@@ -4,7 +4,7 @@ chrome.tabs.executeScript( {
 	console.log("current selection:" + selection);
 
 	if (selection == '') {
-		callback(selection);
+		callback("", selection);
 
 		return;
 	 }
@@ -19,16 +19,13 @@ chrome.tabs.executeScript( {
 		console.log("Multiple words selected, getting explanation for the first word only.");
 	}
 
-	//put all letters to lower case (owlbot doesn`t return anything if there are upper case letters!)
-	var queryString = selectionChunks[0].toLowerCase();
-	var url = "https://owlbot.info/api/v2/dictionary/" + queryString + "?format=json";
-    getDefinition(url, callback);
+    getDefinition(selectionChunks[0], callback);
 });
 
 
 // functions
 
-function getDefinition(url, callback) {
+function getDefinition(word, callback) {
 	if (!window.XMLHttpRequest) {
 		return;
 	}
@@ -38,20 +35,29 @@ function getDefinition(url, callback) {
 	xhr.onload = function() {
 		if (callback && typeof(callback) === 'function') {
 			console.log(this.response);
-			callback(this.response);
+			callback(word, this.response);
 		}
 	}
+
+	//put all letters to lower case (owlbot doesn`t return anything if there are upper case letters!)
+	var queryString = word.toLowerCase();
+	var url = "https://owlbot.info/api/v2/dictionary/" + queryString + "?format=json";
 
 	xhr.open('GET', url);
 	xhr.send();
 };
 
-function callback(response) {
+function callback(word, response) {
 	document.getElementById("loaderContainer").hidden = true;
 	
 	if (!isValid(response)) {
 		return;
 	}
+	
+	var nameTag = document.createElement("h2");
+	nameTag.innerText = word;
+	document.body.appendChild(nameTag);
+	document.body.appendChild(document.createElement("br"));
 
 	var responseObj = JSON.parse(response);
 	console.log(responseObj);
